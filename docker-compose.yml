@@ -1,14 +1,28 @@
-version: "3.8"
+version: "3.9"
 services:
   db-notifications:
     image: postgres
     environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=admin123
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
     env_file:
       - src/.env
     ports:
       - "5432:5432"
-volumes:
-  db-notifications:
+    networks:
+      - mc_network
+  web-notifications:
+    build: .
+    command: python src/manage.py runserver 0.0.0.0:8400
+    volumes:
+      - ./src:/app/src
+    ports:
+      - "8400:8400"
+    networks:
+      - mc_network
+    depends_on:
+      - db-notifications
+networks:
+  mc_network:
+    external: true
